@@ -72,7 +72,7 @@ body {
     font-size: 5.5rem;
     border: 3px solid var(--c-main-light);
     padding: 20px 10px;
-    min-height: 150px;
+    min-height: 175px;
   }
 
     .board__cell--blue {

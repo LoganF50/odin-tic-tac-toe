@@ -1,60 +1,36 @@
-/*
-THOUGHT PROCESS
-  Setup Modal (see notebook):
-    -default names to 'Player 1' and 'Player 2' if blank
-    -Play Against Computer status
-      >checked:
-        *disable Player 2 Name (Name would be 'Computer')
-        *select Easy difficulty
-      >unchecked:
-        *disable difficulty selection
-
-  EndGame Modal (see notebook):
-
-  Setup & Endgame Modals:
-    -use same background (to dim board)
-    -don't have action for background click
-
-  Game Display
-    -unique colors for players (all Player 1 stuff (name, marks, etc.) blue and all Player 2 stuff orange)
-    -hide inactive players names/mark
-*/
-
-
 //MODEL
 const Game = (() => {
   const WINNER_COMBOS = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
   let board = Array(9).fill('');
   let isPlayerOneTurn = true;
+  let player1 = {name: 'Player1', mark: 'X'};
+  let player2 = {name: 'Player2', mark: 'O'};
 
-  const getPlayer = (getPlayer1 = true) => {
-    return (getPlayer1 ? players[0] : players[1]);
-  }
-  const getBoard = () => board;
-  const getIsSinglePlayer = () => isSinglePlayer;
-  const getIsPlayerOneTurn = () => isPlayerOneTurn;
-  const resetBoard = () => board = Array(9).fill('');
   const canMakeMove = (index) => board[index] == '';
-  const makeMove = (index, mark) => board[index] = mark;
-  //clears board, populates players, sets game status, etc
-  const newGame = (playerOneName, playerTwoName) => {
-    resetBoard();
-    isPlayerOneTurn = true;
-    isSinglePlayer = hasTwoPlayers;
-    players.push(Player(playerOneName, 'X'));
-    players.push(Player(playerTwoName, 'O'));
+  const changePlayerTurn = () => {
+    isPlayerOneTurn != isPlayerOneTurn;
   };
+  const getIsPlayerOneTurn = () => isPlayerOneTurn;
   const isTie = !board.includes('');
-  const isWinner = (mark) => {
+  const isWinner = (player) => {
     for (let i = 0; i < WINNER_COMBOS.length; i++) {
-      if(board[WINNER_COMBOS[i][0]] === mark && board[WINNER_COMBOS[i][1]] === mark && board[WINNER_COMBOS[i][2]] === mark) {
+      if(board[WINNER_COMBOS[i][0]] === player.mark && board[WINNER_COMBOS[i][1]] === player.mark && board[WINNER_COMBOS[i][2]] === player.mark) {
         return true;
       }
     }
     return false;
   };
+  const makeMove = (index) => board[index] = isPlayerOneTurn ? player1.mark : player2.mark;
+  //clears board, populates players, etc
+  const newGame = (playerOneName, playerTwoName) => {
+    resetBoard();
+    isPlayerOneTurn = true;
+    player1.name = playerOneName;
+    player2.name = playerTwoName;
+  };
+  const resetBoard = () => board = Array(9).fill('');
 
-  return {getPlayer, getBoard, getIsSinglePlayer, getIsPlayerOneTurn, resetBoard, canMakeMove, makeMove, newGame, isTie, isWinner};
+  return {changePlayerTurn, canMakeMove, getIsPlayerOneTurn, isTie, isWinner, makeMove, newGame, resetBoard};
 })();
 
 //VIEW
@@ -63,8 +39,26 @@ const Board = (() => {
   const player1Mark = document.querySelector('#p1Mark');
   const player2Name = document.querySelector('#p2Name');
   const player2Mark = document.querySelector('#p2Mark');
-  const board = document.querySelector('#board');
   const cells = document.querySelectorAll('.board__cell');
+
+  const clearBoard = () => {
+    for(let i = 0; i < cells.length; i++) {
+      cells[i].textContent = '';
+      cells[i].classList.add('board__cell--playable');
+    }
+  };
+
+  const endgameResult = (isTie, isPlayer1Win = true) => {
+    const result = document.querySelector('#endgameWinner');
+
+    if(isTie) {
+      result.textContent = 'You Tied!';
+    } else if(isPlayer1Win) {
+      result.textContent = `${player1Name.textContent} Won!`;
+    } else {
+      result.textContent = `${player2Name.textContent} Won!`;
+    }
+  };
 
   const endgameShowHide = (shouldHideEndgame) => {
     const modalBackground = document.querySelector('#modal');
@@ -82,6 +76,16 @@ const Board = (() => {
   const enterNames = (p1Name, p2Name) => {
     player1Name.textContent = p1Name;
     player2Name.textContent = p2Name;
+  };
+
+  const makeMove = (isPlayer1Turn, index) => {
+    if(isPlayer1Turn) {
+      cells[index].classList.add('board__cell--orange');
+      cells[index].textContent = player1Mark.textContent;
+    } else {
+      cells[index].classList.add('board__cell--blue');
+      cells[index].textContent = player2Mark.textContent;
+    }
   };
 
   const setupShowHide = (shouldHideSetup) => {
@@ -110,15 +114,13 @@ const Board = (() => {
     }
   };
 
-  return {endgameShowHide, enterNames, setupShowHide, togglePlayerTurn};
+  return {clearBoard, endgameResult, endgameShowHide, enterNames, makeMove, setupShowHide, togglePlayerTurn};
 })();
 
 //CONTROLLER -> links MODEL & VIEW
 const GameController = ((model, view) => {
   
 })();
-
-Game.newGame(false, 'Logan', 'Brandon');
 /*
 Parts of Tic-Tac-Toe
   VIEW
