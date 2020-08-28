@@ -52,27 +52,6 @@ OTHER
 ----------------------------------------------------
 -each board__cell has a data-index value 0-8 corresponding to their order in dom
 
-Game (Model)
-----------------------------------------------------
-canMakeMove
-changePlayerTurn
-getIsPlayerOneTurn
-isTie
-isWinner
-makeMove
-newGame
-resetBoard
-
-Board (View)
-----------------------------------------------------
-clearBoard
-endgameResult
-endgameShowHide
-enterNames
-makeMove
-setupShowHide
-togglePlayerTurn
-
 THOUGHTS
 ----------------------------------------------------
 Setup:

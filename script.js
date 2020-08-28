@@ -8,10 +8,20 @@ const Game = (() => {
 
   const canMakeMove = (index) => board[index] == '';
   const changePlayerTurn = () => {
-    isPlayerOneTurn != isPlayerOneTurn;
+    isPlayerOneTurn = !isPlayerOneTurn;
+  };
+  const clearBoard = () => board = Array(9).fill('');
+  const getActivePlayer = () => {
+    if(isPlayerOneTurn) {
+      return player1;
+    } else {
+      return player2;
+    }
   };
   const getIsPlayerOneTurn = () => isPlayerOneTurn;
-  const isTie = !board.includes('');
+  const isTie = () => {
+    return !board.includes('');
+  }
   const isWinner = (player) => {
     for (let i = 0; i < WINNER_COMBOS.length; i++) {
       if(board[WINNER_COMBOS[i][0]] === player.mark && board[WINNER_COMBOS[i][1]] === player.mark && board[WINNER_COMBOS[i][2]] === player.mark) {
@@ -20,17 +30,22 @@ const Game = (() => {
     }
     return false;
   };
-  const makeMove = (index) => board[index] = isPlayerOneTurn ? player1.mark : player2.mark;
+  const makeMove = (index) => {
+    board[index] = isPlayerOneTurn ? player1.mark : player2.mark;
+  };
   //clears board, populates players, etc
   const newGame = (playerOneName, playerTwoName) => {
-    resetBoard();
+    clearBoard();
     isPlayerOneTurn = true;
     player1.name = playerOneName;
     player2.name = playerTwoName;
   };
-  const resetBoard = () => board = Array(9).fill('');
+  const resetGame = () => {
+    clearBoard();
+    isPlayerOneTurn = true;
+  };
 
-  return {changePlayerTurn, canMakeMove, getIsPlayerOneTurn, isTie, isWinner, makeMove, newGame, resetBoard};
+  return {changePlayerTurn, canMakeMove, clearBoard, getActivePlayer, getIsPlayerOneTurn, isTie, isWinner, makeMove, newGame, resetGame};
 })();
 
 //VIEW
@@ -45,7 +60,14 @@ const Board = (() => {
     for(let i = 0; i < cells.length; i++) {
       cells[i].textContent = '';
       cells[i].classList.add('board__cell--playable');
+      cells[i].classList.remove('board__cell--blue');
+      cells[i].classList.remove('board__cell--orange');
     }
+  };
+
+  const clearSetup = () => {
+    document.querySelector('#setupP1Name').value = '';
+    document.querySelector('#setupP2Name').value = '';
   };
 
   const endgameResult = (isTie, isPlayer1Win = true) => {
@@ -79,6 +101,8 @@ const Board = (() => {
   };
 
   const makeMove = (isPlayer1Turn, index) => {
+    cells[index].classList.remove('board__cell--playable');
+
     if(isPlayer1Turn) {
       cells[index].classList.add('board__cell--orange');
       cells[index].textContent = player1Mark.textContent;
@@ -88,6 +112,12 @@ const Board = (() => {
     }
   };
 
+  const resetGame = () => {
+    Board.clearBoard();
+    Board.togglePlayerTurn(true);
+    Board.endgameShowHide(true);
+  };
+
   const setupShowHide = (shouldHideSetup) => {
     const modalBackground = document.querySelector('#modal');
     const modalSetup = document.querySelector('#modalSetup');
@@ -95,9 +125,12 @@ const Board = (() => {
     if(shouldHideSetup) {
       modalBackground.classList.add('modal--hidden');
       modalSetup.classList.add('modal--hidden');
+      clearSetup();
+      togglePlayerTurn(true);
     } else {
       modalBackground.classList.remove('modal--hidden');
       modalSetup.classList.remove('modal--hidden');
+      clearSetup();
     }
   };
 
@@ -114,13 +147,82 @@ const Board = (() => {
     }
   };
 
-  return {clearBoard, endgameResult, endgameShowHide, enterNames, makeMove, setupShowHide, togglePlayerTurn};
+  return {clearBoard, clearSetup, endgameResult, endgameShowHide, enterNames, makeMove, resetGame, setupShowHide, togglePlayerTurn};
 })();
 
 //CONTROLLER -> links MODEL & VIEW
-const GameController = ((model, view) => {
-  
+const GameController = (() => {
+  const startButton = document.querySelector('#setupStartGame');
+  const endgameButton = document.querySelector('#endgamePlayAgain');
+  const cells = document.querySelectorAll('.board__cell');
+
+  //end game button
+  const endGameButton = () => {
+    Game.resetGame();
+    Board.resetGame();
+  };
+
+  //handles all moves including checking for endgame and moving to next player
+  const makeMove = (e) => {
+    const index = e.target.dataset.index;
+    if(Game.canMakeMove(index)) {
+      //make move
+      Game.makeMove(index);
+      Board.makeMove(Game.getIsPlayerOneTurn(), index);
+
+      //check for endgame
+      if(Game.isTie()) {
+        Board.endgameResult(true, false);
+        Board.endgameShowHide(false);
+      } else if(Game.isWinner(Game.getActivePlayer())) {
+        Board.endgameResult(false, Game.getIsPlayerOneTurn());
+        Board.endgameShowHide(false);
+      } else {
+        Game.changePlayerTurn();
+        Board.togglePlayerTurn(Game.getIsPlayerOneTurn());
+      }
+    }
+  };
+
+  //fills names and hides setup
+  const newGame = (player1Name, player2Name) => {
+    Game.newGame(player1Name, player2Name);
+    
+    Board.setupShowHide(true);
+    Board.enterNames(player1Name, player2Name);
+    Board.clearBoard();
+  };
+
+  //initiate game
+  const startGame = () => {
+    Board.setupShowHide(false);
+  };
+
+  //start game button
+  const startGameButton = () => {
+    const p1Name = document.querySelector('#setupP1Name').value;
+    const p2Name = document.querySelector('#setupP2Name').value;
+    const defaultPlayer1Name = 'Player 1';
+    const defaultPlayer2Name = 'Player 2';
+    let player1Name = '';
+    let player2Name = '';
+
+    player1Name = p1Name == '' ? defaultPlayer1Name : p1Name;
+    player2Name = p2Name == '' ? defaultPlayer2Name : p2Name;
+
+    newGame(player1Name, player2Name);
+  };
+
+  //Add EventListeners
+  startButton.addEventListener('click', startGameButton);
+  endgameButton.addEventListener('click', endGameButton);
+  Array.from(cells).forEach(cell => cell.addEventListener('click', makeMove));
+
+  return {endGameButton, makeMove, newGame, startGame, startGameButton};
 })();
+
+GameController.startGame();
+
 /*
 Parts of Tic-Tac-Toe
   VIEW
