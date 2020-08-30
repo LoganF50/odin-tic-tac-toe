@@ -59,9 +59,9 @@ const Board = (() => {
   const clearBoard = () => {
     for(let i = 0; i < cells.length; i++) {
       cells[i].textContent = '';
-      cells[i].classList.add('board__cell--playable');
-      cells[i].classList.remove('board__cell--blue');
-      cells[i].classList.remove('board__cell--orange');
+      cells[i].classList.add(cssClasses.cellPlayable);
+      cells[i].classList.remove(cssClasses.cellBlue);
+      cells[i].classList.remove(cssClasses.cellOrange);
     }
   };
 
@@ -69,6 +69,18 @@ const Board = (() => {
     document.querySelector('#setupP1Name').value = '';
     document.querySelector('#setupP2Name').value = '';
   };
+
+  const cssClasses = (() => {
+    return {
+      cellBlue: 'board__cell--blue',
+      cellOrange: 'board__cell--orange',
+      cellPlayable: 'board__cell--playable',
+      modalHidden: 'modal--hidden',
+      playerBlue: 'player--blue',
+      playerInactive: 'player--inactive',
+      playerOrange: 'player--orange',
+    };
+  })();
 
   const endgameResult = (isTie, isPlayer1Win = true) => {
     const result = document.querySelector('#endgameWinner');
@@ -87,11 +99,11 @@ const Board = (() => {
     const modalEndgame = document.querySelector('#modalEndgame');
 
     if(shouldHideEndgame) {
-      modalBackground.classList.add('modal--hidden');
-      modalEndgame.classList.add('modal--hidden');
+      modalBackground.classList.add(cssClasses.modalHidden);
+      modalEndgame.classList.add(cssClasses.modalHidden);
     } else {
-      modalBackground.classList.remove('modal--hidden');
-      modalEndgame.classList.remove('modal--hidden');
+      modalBackground.classList.remove(cssClasses.modalHidden);
+      modalEndgame.classList.remove(cssClasses.modalHidden);
     }
   };
 
@@ -101,13 +113,13 @@ const Board = (() => {
   };
 
   const makeMove = (isPlayer1Turn, index) => {
-    cells[index].classList.remove('board__cell--playable');
+    cells[index].classList.remove(cssClasses.cellPlayable);
 
     if(isPlayer1Turn) {
-      cells[index].classList.add('board__cell--orange');
+      cells[index].classList.add(cssClasses.cellOrange);
       cells[index].textContent = player1Mark.textContent;
     } else {
-      cells[index].classList.add('board__cell--blue');
+      cells[index].classList.add(cssClasses.cellBlue);
       cells[index].textContent = player2Mark.textContent;
     }
   };
@@ -123,13 +135,13 @@ const Board = (() => {
     const modalSetup = document.querySelector('#modalSetup');
 
     if(shouldHideSetup) {
-      modalBackground.classList.add('modal--hidden');
-      modalSetup.classList.add('modal--hidden');
+      modalBackground.classList.add(cssClasses.modalHidden);
+      modalSetup.classList.add(cssClasses.modalHidden);
       clearSetup();
       togglePlayerTurn(true);
     } else {
-      modalBackground.classList.remove('modal--hidden');
-      modalSetup.classList.remove('modal--hidden');
+      modalBackground.classList.remove(cssClasses.modalHidden);
+      modalSetup.classList.remove(cssClasses.modalHidden);
       clearSetup();
     }
   };
@@ -139,11 +151,11 @@ const Board = (() => {
     const player2 = document.querySelector('#p2');
 
     if(isPlayer1Turn) {
-      player1.classList.remove('player--inactive');
-      player2.classList.add('player--inactive');
+      player1.classList.remove(cssClasses.playerInactive);
+      player2.classList.add(cssClasses.playerInactive);
     } else {
-      player1.classList.add('player--inactive');
-      player2.classList.remove('player--inactive');      
+      player1.classList.add(cssClasses.playerInactive);
+      player2.classList.remove(cssClasses.playerInactive);      
     }
   };
 
