@@ -85,10 +85,10 @@ const Board = (() => {
   const endgameResult = (isTie, isPlayer1Win = true) => {
     const result = document.querySelector('#endgameWinner');
 
-    if(isTie) {
-      result.textContent = 'You Tied!';
-    } else if(isPlayer1Win) {
+    if(isPlayer1Win) {
       result.textContent = `${player1Name.textContent} Won!`;
+    } else if(isTie) {
+      result.textContent = 'You Tied!';
     } else {
       result.textContent = `${player2Name.textContent} Won!`;
     }
@@ -182,13 +182,15 @@ const GameController = (() => {
       Game.makeMove(index);
       Board.makeMove(Game.getIsPlayerOneTurn(), index);
 
-      //check for endgame
-      if(Game.isTie()) {
-        Board.endgameResult(true, false);
-        Board.endgameShowHide(false);
-      } else if(Game.isWinner(Game.getActivePlayer())) {
+      //check player winner
+      if(Game.isWinner(Game.getActivePlayer())) {
         Board.endgameResult(false, Game.getIsPlayerOneTurn());
         Board.endgameShowHide(false);
+      //check tie
+      } else if(Game.isTie()) {
+        Board.endgameResult(true, false);
+        Board.endgameShowHide(false);
+      //not endgame
       } else {
         Game.changePlayerTurn();
         Board.togglePlayerTurn(Game.getIsPlayerOneTurn());
