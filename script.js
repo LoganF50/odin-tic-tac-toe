@@ -1,3 +1,123 @@
+//PLAYERS
+const Player = (name, mark) => {
+  return {name, mark};
+};
+
+//controls game logic/flow
+const GameModel = (() => {
+  const WINNING_COMBOS = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+  let board;
+  let player1;
+  let player2;
+  let isPlayer1Turn;
+  let isSinglePlayer;
+  let difficultyLevel;
+
+  const canMakeMove = (index) => {
+    return board[index] == '';
+  };
+
+  const changePlayerTurn = () => {
+    isPlayer1Turn = !isPlayer1Turn;
+  };
+
+  const getDifficultyLevel = () => {
+    return difficultyLevel;
+  };
+
+  //returns [-1=not endgame; 0=tie; 1=player1 win; 2=player2 win]
+  const getEndgameResult = () => {
+    //check for winner
+    for(let comboNum = 0; comboNum < WINNING_COMBOS.length; comboNum++) {
+      if(board[WINNING_COMBOS[comboNum][0]] === board[WINNING_COMBOS[comboNum][1]] && board[WINNING_COMBOS[comboNum][0]] == board[WINNING_COMBOS[comboNum][2]]) {
+        if(board[WINNING_COMBOS[comboNum][0]] == player1.mark) {
+          return 1;
+        } else if(board[WINNING_COMBOS[comboNum][0]] == player2.mark) {
+          return 2;
+        } else {
+          return -1;
+        }
+      }
+    }
+
+    //check if any empty spots left
+    if(board.includes('')) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
+
+  const getIsPlayer1Turn = () => {
+    return isPlayer1Turn;
+  };
+
+  const getIsSinglePlayer = () => {
+    return isSinglePlayer;
+  };
+
+  //makes move for computer
+  //difficulty [1=easy; 2=medium; 3=hard]
+  //TODO implement medium and hard difficulties
+  const makeAIMove = (difficulty) => {
+    switch(difficulty) {
+      //best available move (minimax)
+      case 3:
+        break;
+      //only think ahead 1 move (in order: make winning move, block losing move, random move)
+      case 2:
+        break;
+      //random move
+      default:
+        //get all possible moves and makeMove
+        let indexOptions;
+        for(let i = 0; i < board.length; i++) {
+          if(canMakeMove(i)) {
+            indexOptions.push(i);
+          }
+        }
+        makeMove(indexOptions[Math.floor(Math.random() * indexOptions.length)]);
+    }
+  };
+
+  //fills board at index w/ current player's mark
+  const makeMove = (index) => {
+    board[index] = isPlayer1Turn ? player1.mark : player2.mark;
+  };
+
+  //brand new game
+  const newGame = (player1Name, player2Name, player2IsAI, levelOfDifficulty) => {
+    player1 = Player(player1Name, 'X');
+    player2 = Player(player2Name, 'O');
+    isSinglePlayer = player2IsAI;
+    difficultyLevel = levelOfDifficulty;
+    board = Array(9).fill('');
+    isPlayer1Turn = true;
+  };
+
+  //new game w/ same players, settings
+  const resetGame = () => {
+    board = Array(9).fill('');
+    isPlayer1Turn = true;
+  };
+
+  return {canMakeMove, changePlayerTurn, getDifficultyLevel, getEndgameResult, getIsPlayer1Turn, getIsSinglePlayer, makeAIMove, makeMove, newGame, resetGame};
+})();
+
+//controls what displays
+const GameView = (() => {
+
+  return {};
+})();
+
+//Links model and view
+const GameController = (() => {
+
+  return {};
+})();
+
+
+//OLD CODE BASE
 //MODEL
 const Game = (() => {
   const WINNER_COMBOS = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
