@@ -40,29 +40,29 @@
         <label class="modal__label" for="setupP1Name">Player 1 Name</label>
       </div>
       <div class="modal__row">
-        <input class="modal__input" type="text" id="setupP1Name" placeholder="Player 1">
+        <input class="modal__input modal__input--text" type="text" id="setupP1Name" placeholder="Player 1">
       </div>
       <div class="modal__row">
         <label class="modal__label" for="setupP2Name">Player 2 Name</label>
       </div>
       <div class="modal__row">
-        <input class="modal__input" type="text" id="setupP2Name" placeholder="Player 2">
-      </div>
-      <!-- <div class="modal__row">
-        <label for="play-ai">Play Against Computer</label>
-        <input type="checkbox" id="play-ai">
+        <input class="modal__input modal__input--text" type="text" id="setupP2Name" placeholder="Player 2">
       </div>
       <div class="modal__row">
-        <span>Computer Difficulty:</span>
+        <label class="modal__label" for="play-ai">Play Against Computer:</label>
+        <input class="modal__input" type="checkbox" id="play-ai">
+      </div>
+      <div class="modal__row">
+        <span class="modal__label">Computer Difficulty:</span>
         <span>
-          <input type="radio" name="difficulty" id="difficulty-easy" checked>
+          <input class="modal__input" type="radio" name="difficulty" id="difficulty-easy" disabled>
           <label for="difficulty-easy">Easy</label>
-          <input type="radio" name="difficulty" id="difficulty-medium">
+          <input class="modal__input" type="radio" name="difficulty" id="difficulty-medium" disabled>
           <label for="difficulty-medium">Medium</label>
-          <input type="radio" name="difficulty" id="difficulty-hard">
+          <input class="modal__input" type="radio" name="difficulty" id="difficulty-hard" disabled>
           <label for="difficulty-hard">Hard</label>
         </span>
-      </div> -->
+      </div>
       <div class="modal__row">
         <button id="setupStartGame" class="modal__btn modal__btn--right">Start Game!</button>
       </div>

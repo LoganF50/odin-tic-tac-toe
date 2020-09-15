@@ -43,6 +43,10 @@ ID
 #modalSetup --> modal when starting new game
   #setupP1Name
   #setupP2Name
+  #play-ai
+  #difficulty-easy
+  #difficulty-medium
+  #difficulty-hard
   #setupStartGame
 
 #modalEndgame --> modal when game ends
