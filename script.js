@@ -106,7 +106,114 @@ const GameModel = (() => {
 
 //controls what displays
 const GameView = (() => {
+  //players
+  const player1 = document.querySelector('#p1');
+  const player1Name = document.querySelector('#p1Name');
+  const player2 = document.querySelector('#p2');
+  const player2Name = document.querySelector('#p1Name');
+  //cells
+  const cells = document.querySelectorAll('.board__cell');
+  //modals
+  const modal = document.querySelector('#modal');
+  //setup
+  const modalSetup = document.querySelector('#modalSetup');
+  const setupP1Name = document.querySelector('#setupP1Name');
+  const setupP2Name = document.querySelector('#setupP2Name');
+  const playAI = document.querySelector('#play-ai');
+  const difficultyEasy = document.querySelector('#difficulty-easy');
+  const difficultyMedium = document.querySelector('#difficulty-medium');
+  const difficultyHard = document.querySelector('#difficulty-hard');
+  //endgame
+  const modalEndgame = document.querySelector('#modalEndgame');
+  const endgameWinner = document.querySelector('#endgameWinner');
 
+  //clears all board cells
+  const clearBoard = () => {
+    for(let i = 0; i < cells.length; i++) {
+      cells[i].textContent = '';
+      cells[i].classList.add(cssClasses.cellPlayable);
+      cells[i].classList.remove(cssClasses.cellBlue);
+      cells[i].classList.remove(cssClasses.cellOrange);
+    };
+  };
+
+
+  //list of css classes to add/remove
+  const cssClasses = (() => {
+    return {
+      cellBlue: 'board__cell--blue',
+      cellOrange: 'board__cell--orange',
+      cellPlayable: 'board__cell--playable',
+      modalHidden: 'modal--hidden',
+      playerBlue: 'player--blue',
+      playerInactive: 'player--inactive',
+      playerOrange: 'player--orange',
+    };
+  })();
+
+  //fills in player names in game
+  const enterNames = (p1Name, p2Name) => {
+    player1Name.textContent = p1Name;
+    player2Name.textContent = p2Name;
+  };
+
+  const hideEndgameModal = () => {
+    modal.classList.add(cssClasses.modalHidden);
+    modalEndgame.classList.add(cssClasses.modalHidden);
+  };
+
+  const hideSetupModal = () => {
+    modal.classList.add(cssClasses.modalHidden);
+    modalSetup.classList.add(cssClasses.modalHidden);
+  };
+
+  //fills indicated cell on board based on whose turn it is
+  const makeMove = (isPlayer1Turn, index) => {
+    cells[index].classList.remove(cssClasses.cellPlayable);
+
+    if(isPlayer1Turn) {
+      cells[index].classList.add(cssClasses.cellOrange);
+      cells[index].textContent = player1Mark.textContent;
+    } else {
+      cells[index].classList.add(cssClasses.cellBlue);
+      cells[index].textContent = player2Mark.textContent;
+    }
+  };
+
+  //clears board and makes it player1's turn
+  const resetGame = () => {
+    clearBoard();
+    togglePlayerTurn(true);
+    hideEndgameModal();
+  }
+
+  const showEndgameModal = (resultText) => {
+    modal.classList.remove(cssClasses.modalHidden);
+    modalEndgame.classList.remove(cssClasses.modalHidden);
+    endgameWinner.textContent = resultText;
+  };
+
+  const showSetupModal = () => {
+    modal.classList.remove(cssClasses.modalHidden);
+    modalSetup.classList.remove(cssClasses.modalHidden);
+    setupP1Name.value = '';
+    setupP2Name.value = '';
+    playAI.checked = false;
+    difficultyEasy.checked = false;
+    difficultyMedium.checked = false;
+    difficultyHard.checked = false;
+  };
+
+  //change which player is visible to indicating their turn
+  const togglePlayerTurn = (isPlayer1Turn) => {
+    if(isPlayer1Turn) {
+      player1.classList.remove(cssClasses.playerInactive);
+      player2.classList.add(cssClasses.playerInactive);
+    } else {
+      player1.classList.add(cssClasses.playerInactive);
+      player2.classList.remove(cssClasses.playerInactive);      
+    }
+  };
   return {};
 })();
 

@@ -23,6 +23,7 @@ CLASS
     --right --> float: right
   __content
   __input
+    --text --> width: 100%
   __label
   __row
   __title

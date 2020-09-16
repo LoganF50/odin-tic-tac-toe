@@ -55,11 +55,6 @@ body {
     content: ': ';
   }
 
-  .player__name {
-
-  }
-
-
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
