@@ -1,19 +1,21 @@
 # Tic-Tac-Toe
 
-project_description created with html, css, and js
+tic-tac-toe created with html, css, and js
 
 [From the Odin Project]
 
 ## Completed Features
 
-- completed feature
+- multiplayer gameplay: play w/ 2 players
+- singleplayer gameplay: play against the computer
 
 ## Upcoming Features/QoL Fixes
 
-- to do feature
-    - use 4 spaces to nest lists
+- introduce multiple computer difficulties
+    - currently does not function when selecting medium or hard difficulty
 
 ## Learning Outcomes
 
-- learned this
-- learned that
+- factory functions
+- module pattern
+- MVC implementation
