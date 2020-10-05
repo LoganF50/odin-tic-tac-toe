@@ -11,9 +11,6 @@ tic-tac-toe created with html, css, and js
 
 ## Upcoming Features/QoL Fixes
 
-- introduce multiple computer difficulties
-    - currently does not function when selecting medium or hard difficulty
-
 ## Learning Outcomes
 
 - factory functions

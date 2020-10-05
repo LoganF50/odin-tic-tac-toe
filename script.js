@@ -21,6 +21,61 @@ const GameModel = (() => {
     _isPlayer1Turn = !_isPlayer1Turn;
   };
 
+  //returns index to make ai move on
+  //difficulty [1=easy; 2=medium; 3=hard]
+  const getAIMoveIndex = (difficulty) => {
+    let index = -1;
+    switch(difficulty) {
+      //best available move (minimax)
+      case 2:
+        index = _getAIBestMoveIndex();
+        break;
+      //random move
+      default:
+        index = _getAIRandomMove();
+    }
+    return index;
+  };
+
+  //returns best index where move can be made
+  const _getAIBestMoveIndex = () => {
+    //https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-3-tic-tac-toe-ai-finding-optimal-move/
+    let bestMoveIndex = null;
+    let bestMoveValue = -1000;
+    for(let i = 0; i < _board.length; i++) {
+      if(canMakeMove(i)) {
+        //make move
+        _board[i] = _player2.mark;
+
+        //get value of this move
+        const currentMoveValue = _minimax(0, false);
+        console.log({_board, i, currentMoveValue});
+
+        //undo move
+        _board[i] = '';
+
+        if(currentMoveValue > bestMoveValue) {
+          bestMoveIndex = i;
+          bestMoveValue = currentMoveValue;
+        };
+      }
+    };
+
+    return bestMoveIndex;
+  };
+
+  //returns random index where move can be made
+  const _getAIRandomMove = () => {
+    //get all possible moves and makeMove
+    let indexOptions = [];
+    for(let i = 0; i < _board.length; i++) {
+      if(canMakeMove(i)) {
+        indexOptions.push(i);
+      }
+    }
+    return indexOptions[Math.floor(Math.random() * indexOptions.length)];
+  };
+
   const getDifficultyLevel = () => {
     return _difficultyLevel;
   };
@@ -29,7 +84,7 @@ const GameModel = (() => {
   const getEndgameResult = () => {
     //check for winner
     for(let comboNum = 0; comboNum < _WINNING_COMBOS.length; comboNum++) {
-      if(_board[_WINNING_COMBOS[comboNum][0]] == _board[_WINNING_COMBOS[comboNum][1]] && _board[_WINNING_COMBOS[comboNum][0]] == _board[_WINNING_COMBOS[comboNum][2]]) {
+      if(_board[_WINNING_COMBOS[comboNum][0]] == _board[_WINNING_COMBOS[comboNum][1]] && _board[_WINNING_COMBOS[comboNum][0]] == _board[_WINNING_COMBOS[comboNum][2]] && _board[_WINNING_COMBOS[comboNum][0]] != '') {
         if(_board[_WINNING_COMBOS[comboNum][0]] == _player1.mark) {
           return 1;
         };
@@ -40,7 +95,7 @@ const GameModel = (() => {
     }
 
     //check if any empty spots left
-    if(_board.includes('')) {
+    if(_hasMovesLeft()) {
       return -1;
     } else {
       return 0;
@@ -55,37 +110,62 @@ const GameModel = (() => {
     return _isSinglePlayer;
   };
 
-  //makes move for computer
-  //difficulty [1=easy; 2=medium; 3=hard]
-  //TODO implement medium and hard difficulties
-  //returns index move is made on
-  const makeAIMove = (difficulty) => {
-    let index = -1;
-    switch(difficulty) {
-      //best available move (minimax)
-      case 3:
-        break;
-      //only think ahead 1 move (in order: make winning move, block losing move, random move)
-      case 2:
-        break;
-      //random move
-      default:
-        //get all possible moves and makeMove
-        let indexOptions = [];
-        for(let i = 0; i < _board.length; i++) {
-          if(canMakeMove(i)) {
-            indexOptions.push(i);
-          }
-        }
-        index = indexOptions[Math.floor(Math.random() * indexOptions.length)];
-        makeMove(index);
-    }
-    return index;
+  const _hasMovesLeft = () => {
+    return _board.includes('');
   };
 
   //fills board at index w/ current player's mark
   const makeMove = (index) => {
     _board[index] = _isPlayer1Turn ? _player1.mark : _player2.mark;
+  };
+  
+  //gets result of theoretical moves
+  const _minimax = (depth, isMaximizer) => {
+    const result = getEndgameResult();
+
+    //tie
+    if(result == 0) {
+      return 0;
+    };
+
+    //player won
+    if(result == 1) {
+      return -10 + depth;
+    };
+
+    //computer won
+    if(result == 2) {
+      return 10 - depth;
+    };
+
+    //computer's turn
+    if(isMaximizer) {
+      let bestValue = -1000;
+
+      for(let i = 0; i < _board.length; i++) {
+        //if move is available, make move, recurse, then undo move
+        if(canMakeMove(i)) {
+          _board[i] = _player2.mark;
+          bestValue = Math.max(bestValue, _minimax(depth + 1, !isMaximizer));
+          _board[i] = '';
+        }
+      };
+      return bestValue;
+
+    //player's turn
+    } else {
+      let bestValue = 1000;
+
+      for(let i = 0; i < _board.length; i++) {
+        //if move is available, make move, recurse, then undo move
+        if(canMakeMove(i)) {
+          _board[i] = _player1.mark;
+          bestValue = Math.min(bestValue, _minimax(depth + 1, !isMaximizer));
+          _board[i] = '';
+        }
+      };
+      return bestValue;
+    };
   };
 
   //brand new game
@@ -104,7 +184,7 @@ const GameModel = (() => {
     _isPlayer1Turn = true;
   };
 
-  return {canMakeMove, changePlayerTurn, getDifficultyLevel, getEndgameResult, getIsPlayer1Turn, getIsSinglePlayer, makeAIMove, makeMove, newGame, resetGame};
+  return {canMakeMove, changePlayerTurn, getAIMoveIndex, getDifficultyLevel, getEndgameResult, getIsPlayer1Turn, getIsSinglePlayer, makeMove, newGame, resetGame};
 })();
 
 //controls what displays
@@ -126,7 +206,6 @@ const GameView = (() => {
   const _setupP2Name = document.querySelector('#setupP2Name');
   const _playAI = document.querySelector('#play-ai');
   const _difficultyEasy = document.querySelector('#difficulty-easy');
-  const _difficultyMedium = document.querySelector('#difficulty-medium');
   const _difficultyHard = document.querySelector('#difficulty-hard');
   //endgame
   const _modalEndgame = document.querySelector('#modalEndgame');
@@ -217,8 +296,6 @@ const GameView = (() => {
     _playAI.checked = false;
     _difficultyEasy.checked = true;
     _difficultyEasy.disabled = true;
-    _difficultyMedium.checked = false;
-    _difficultyMedium.disabled = true;
     _difficultyHard.checked = false;
     _difficultyHard.disabled = true;
   };
@@ -273,7 +350,8 @@ const GameController = (() => {
 
           //make ai move (if applicable)
           if(GameModel.getIsSinglePlayer()) {
-            const aiIndex = GameModel.makeAIMove(GameModel.getDifficultyLevel());
+            const aiIndex = GameModel.getAIMoveIndex(GameModel.getDifficultyLevel());
+            GameModel.makeMove(aiIndex);
             GameView.makeMove(false, aiIndex);
 
             //check endgame
@@ -301,7 +379,6 @@ const GameController = (() => {
     const _playAIChangeHandler = (e) => {
       const setupPlayer2Name = document.querySelector('#setupP2Name');
       const setupEasy = document.querySelector('#difficulty-easy');
-      const setupMedium = document.querySelector('#difficulty-medium');
       const setupHard = document.querySelector('#difficulty-hard');
       if(e.target.checked) {
         setupPlayer2Name.disabled = true;
@@ -309,13 +386,11 @@ const GameController = (() => {
         setupPlayer2Name.value = '';
         setupEasy.disabled = false;
         setupEasy.checked = true;
-        setupMedium.disabled = false;
         setupHard.disabled = false;
       } else {
         setupPlayer2Name.disabled = false;
         setupPlayer2Name.placeholder = 'Player 2';
         setupEasy.disabled = true;
-        setupMedium.disabled = true;
         setupHard.disabled = true;
       }
     };
@@ -341,8 +416,6 @@ const GameController = (() => {
       };
       //set difficulty
       if(document.querySelector('#difficulty-hard').checked) {
-        difficulty = 3;
-      } else if(document.querySelector('#difficulty-medium').checked) {
         difficulty = 2;
       } else {
         difficulty = 1;
